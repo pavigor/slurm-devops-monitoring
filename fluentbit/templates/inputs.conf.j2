@@ -1,0 +1,10 @@
+[INPUT]
+    Name systemd
+    Tag  {{ input_systemd_tag }}
+    Read_From_Tail {{ input_systemd_read_from_tail }}
+{% if input_systemd_filters is defined %}
+    {% for filter in input_systemd_filters %}
+    Systemd_Filter  {{ filter }}
+    {% endfor %}
+{% endif %}
+

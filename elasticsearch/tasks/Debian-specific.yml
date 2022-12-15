@@ -1,0 +1,36 @@
+---
+- name: "Install dependencies"
+  ansible.builtin.package:
+    name: apt-transport-https
+    state: present
+
+- name: "Import the Elasticsearch GPG Key"
+  ansible.builtin.get_url:
+    url: "{{ elastic_repo_key_url }}"
+    dest: /usr/share/keyrings/elasticsearch-keyring.asc
+    mode: '0644'
+    force: true
+
+- name: "Add Elasticsearch APT repository"
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] {{ elastic_apt_repo }} stable main"
+    state: present
+
+- name: "Installing Elasticsearch from the APT repository"
+  ansible.builtin.apt_repository:
+    name: elasticsearch
+    state: latest
+  when: elasticsearch_install|bool == true
+  notify:
+    - Enable elasticsearch service
+    - Start elasticsearch service
+#    - Create enrollment token
+
+- name: "Installing Kibana from the APT repository"
+  ansible.builtin.apt_repository:
+    name: kibana
+    state: latest
+  when: kibana_install|bool == true
+  notify:
+    - Enable kibana service
+    - Start kibana service

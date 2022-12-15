@@ -1,0 +1,53 @@
+---
+# tasks file for node_exporter
+- name: "Check target platform"
+  ansible.builtin.fail:
+    msg: This platform doesn't yet supported
+  when: ansible_system != "Linux"
+
+- name: "Download {{ node_exporter_version }} version"
+  ansible.builtin.get_url:
+    url: "{{ node_exporter_release_url }}"
+    dest: "/tmp/{{ node_exporter_release_archive }}"
+
+- name: "Untar {{ node_exporter_release_archive }}"
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ node_exporter_release_archive }}"
+    dest: "/tmp/"
+    remote_src: true
+
+- name: "Install binary file"
+  ansible.builtin.copy:
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
+    dest: "{{ node_exporter_bin_dir }}"
+    mode: preserve
+    remote_src: true
+
+- name: "Copy node_exporter options file"
+  ansible.builtin.copy:
+    src: "{{ node_exporter_options_file }}"
+    dest: "{{ node_exporter_env_file }}"
+
+- name: "Install node_exporter service"
+  ansible.builtin.template:
+    src: "{{ node_exporter_service_template }}"
+    dest: /usr/lib/systemd/system/node_exporter.service
+
+- name: "Enable node_exporter service"
+  ansible.builtin.systemd:
+    name: node_exporter
+    enabled: yes
+  notify: Start node_exporter service
+
+- include_tasks: add-target-to-prom-server.yml
+  when:
+    - prometheus_server|length > 0
+    - node_exporter_address is defined
+
+- name: "Cleanup sources"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items: ["/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64", "/tmp/{{ node_exporter_release_archive }}"]
+  tags:
+    - always

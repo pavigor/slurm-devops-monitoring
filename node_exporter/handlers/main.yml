@@ -1,0 +1,12 @@
+---
+# handlers file for node_exporter
+- name: Start node_exporter service
+  ansible.builtin.systemd:
+    name: node_exporter
+    state: started
+
+- name: Reload prometheus config
+  delegate_to: "{{ prometheus_server }}"
+  ansible.builtin.systemd:
+    name: prometheus
+    state: reloaded

@@ -1,0 +1,28 @@
+---
+# defaults file for prometheus
+prometheus_default_user: prometheus
+prometheus_default_group: prometheus
+
+prometheus_version: 2.40.6
+prometheus_release_archive: "prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+prometheus_release_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/{{ prometheus_release_archive }}"
+
+prometheus_directories:
+  - /etc/prometheus
+  - /var/lib/prometheus
+prometheus_options_file: prometheus
+prometheus_env_file: /etc/sysconfig/prometheus
+prometheus_bin_dir: /usr/local/bin/
+
+######################
+# Prometheus config: #
+######################
+# Set the scrape interval to every 15 seconds. Default is every 1 minute.
+prometheus_scrape_interval: 15s
+# Evaluate rules every 15 seconds. The default is every 1 minute.
+prometheus_evaluation_interval: 15s
+prometheus_config_template: "prometheus.yml.j2"
+prometheus_provisioned_config_file: ""
+
+# Prometheus service config
+prometheus_service_template: "prometheus.service.j2"

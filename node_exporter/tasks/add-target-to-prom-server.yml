@@ -1,0 +1,37 @@
+---
+- name: "[Prometheus] Check if job {{ prometheus_job_name }} exists"
+  delegate_to: "{{ prometheus_server }}"
+  ansible.builtin.command:
+    cmd: "grep -i \"job_name: {{ node_exporter_address }}\" /etc/prometheus/prometheus.yml"
+  register: prom_job_exists
+  changed_when: no
+  ignore_errors: yes
+
+- name: "[Prometheus] Add new job {{ prometheus_job_name }}"
+  delegate_to: "{{ prometheus_server }}"
+  ansible.builtin.blockinfile:
+    path: /etc/prometheus/prometheus.yml
+    block: |2
+        - job_name: "{{ prometheus_job_name }}"
+          static_configs:
+            - targets:
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ prometheus_job_name }}"
+  when: prom_job_exists.rc > 0
+
+- name: "[Prometheus] Check if target {{ node_exporter_address }} exists"
+  delegate_to: "{{ prometheus_server }}"
+  ansible.builtin.command:
+    cmd: "grep -i {{ node_exporter_address }} /etc/prometheus/prometheus.yml"
+  register: prom_target_exists
+  changed_when: no
+  ignore_errors: yes
+
+- name: "[Prometheus] Add new job and target {{ prometheus_job_name }}:{{ node_exporter_address }}"
+  delegate_to: "{{ prometheus_server }}"
+  ansible.builtin.blockinfile:
+    path: /etc/prometheus/prometheus.yml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ prometheus_job_name }}:{{ node_exporter_address }}"
+    insertafter: "^\\s+(- job_name: \"{{ prometheus_server }}\".*\\n)(\\s+.*\\n){0,}\\s+(- targets:)\\n+\\s+.*"
+    block: |2
+                - "{{ node_exporter_address }}:9090"
+  when: prom_target_exists.rc > 0

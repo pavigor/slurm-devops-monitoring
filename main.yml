@@ -1,0 +1,28 @@
+---
+- name: "Deploy prometheus"
+  hosts: monitoring
+  become: true
+
+  roles:
+    - role: './prometheus'
+
+- name: "Deploy node_exporter"
+  hosts: nodes
+  become: true
+
+  roles:
+    - role: './node_exporter'
+
+- name: "Deploy elasticsearch and kibana"
+  hosts: elastic
+  become: true
+
+  roles:
+    - role: './elasticsearch'
+
+- name: "Deploy fluent-bit"
+  hosts: fluent
+  become: true
+
+  roles:
+    - role: './fluentbit'

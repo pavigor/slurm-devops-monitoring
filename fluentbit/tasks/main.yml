@@ -1,0 +1,50 @@
+---
+- name: "Check target platform"
+  ansible.builtin.fail:
+    msg: This platform doesn't yet supported
+  when: ansible_system != "Linux"
+
+- name: "Check target OS"
+  ansible.builtin.fail:
+    msg: This OS doesn't yet supported
+  when:
+    - ansible_os_family != 'RedHat'
+    - ansible_os_family != 'Debian'
+
+- include_tasks: RedHat-specific.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: Debian-specific.yml
+  when:
+    - ansible_os_family == 'Debian'
+    - ansible_distribution == 'Debian'
+
+- include_tasks: Ubuntu-specific.yml
+  when:
+    - ansible_os_family == 'Debian'
+    - ansible_distribution == 'Ubuntu'
+
+- name: "Copy config"
+  ansible.builtin.template:
+    src: "{{ fluentbit_config_template }}"
+    dest: "{{ fluentbit_config_file }}"
+
+- name: "Copy inputs"
+  ansible.builtin.template:
+    src: "{{ fluentbit_inputs_config_template }}"
+    dest: "{{ fluentbit_inputs_file }}"
+
+- name: "Copy outputs"
+  ansible.builtin.template:
+    src: "{{ fluentbit_outputs_config_template }}"
+    dest: "{{ fluentbit_outputs_file }}"
+
+- name: "Copy filters"
+  ansible.builtin.template:
+    src: "{{ fluentbit_filters_config_template }}"
+    dest: "{{ fluentbit_filters_file }}"
+
+- name: "Restart fluent-bit service"
+  ansible.builtin.systemd:
+    name: fluent-bit
+    state: restarted

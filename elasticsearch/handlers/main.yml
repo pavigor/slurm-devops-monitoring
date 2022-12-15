@@ -1,0 +1,32 @@
+---
+- name: Enable elasticsearch service
+  ansible.builtin.systemd:
+    name: elasticsearch
+    daemon_reload: yes
+    enabled: yes
+
+- name: Start elasticsearch service
+  ansible.builtin.systemd:
+    name: elasticsearch
+    state: started
+
+#- name: Create enrollment token
+#  ansible.builtin.command:
+#    cmd: /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+#  register: enrollment_token
+#  notify: Print enrollment token
+#
+#- name: Print enrollment token
+#  ansible.builtin.debug:
+#    var: enrollment_token.stdout
+
+- name: Enable kibana service
+  ansible.builtin.systemd:
+    name: kibana
+    daemon_reload: yes
+    enabled: yes
+
+- name: Start kibana service
+  ansible.builtin.systemd:
+    name: kibana
+    state: started

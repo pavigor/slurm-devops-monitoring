@@ -1,0 +1,14 @@
+---
+# defaults file for node_exporter
+node_exporter_version: 1.5.0
+node_exporter_release_archive: "node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+node_exporter_release_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/{{ node_exporter_release_archive }}"
+
+# Node exporter service config
+node_exporter_service_template: "node_exporter.service.j2"
+
+node_exporter_bin_dir: "/usr/local/bin/node_exporter"
+prometheus_server: ""
+prometheus_job_name: "TEST"
+node_exporter_env_file: /etc/sysconfig/node_exporter
+node_exporter_options_file: node_exporter

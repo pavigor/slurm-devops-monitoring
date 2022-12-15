@@ -1,0 +1,40 @@
+---
+# Repository
+fluentbit_repo_key_url: "https://packages.fluentbit.io/fluentbit.key"
+
+# Paths and files
+fluentbit_config_template: "fluent-bit.conf.j2"
+fluentbit_inputs_config_template: "inputs.conf.j2"
+fluentbit_outputs_config_template: "outputs.conf.j2"
+fluentbit_filters_config_template: "filters.conf.j2"
+fluentbit_config_file: "/etc/fluent-bit/fluent-bit.conf"
+fluentbit_inputs_file: "/etc/fluent-bit/inputs.conf"
+fluentbit_outputs_file: "/etc/fluent-bit/outputs.conf"
+fluentbit_filters_file: "/etc/fluent-bit/filters.conf"
+
+# Fluent-bit configuration
+fluent_flush_interval: 5
+fluent_daemon: Off
+fluent_log_level: info
+fluent_http_server: Off
+fluent_http_listen: 0.0.0.0
+fluent_http_port: 2020
+fluent_inputs_conf: "inputs.conf"
+fluent_filters_conf: "filters.conf"
+fluent_outputs_conf: "outputs.conf"
+
+# Systemd input config
+input_systemd_tag: 'host.*'
+input_systemd_read_from_tail: Off
+#input_systemd_filters:
+#  - _SYSTEMD_UNIT=docker.service
+
+# Elasticsearch output config
+output_es_match: '*'
+output_es_host: '127.0.0.1'
+output_es_port: 9200
+output_es_buffer_size: 4KB
+output_es_logstash_format: Off
+output_es_logstash_prefix: logstash
+output_es_index: fluent-bit
+output_es_type: _doc

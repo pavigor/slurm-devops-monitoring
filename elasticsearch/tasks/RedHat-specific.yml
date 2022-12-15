@@ -1,0 +1,37 @@
+---
+- name: "Import the Elasticsearch GPG Key"
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ elastic_repo_key_url }}"
+  when: elasticsearch_install|bool == true or kibana_install|bool == true
+
+- name: "Add Elasticsearch RPM repository"
+  ansible.builtin.yum_repository:
+    name: elasticsearch
+    description: Elasticsearch repository for 7.x packages
+    baseurl: "{{ elastic_yum_repo }}"
+    gpgcheck: true
+    gpgkey: "{{ elastic_repo_key_url }}"
+    enabled: no
+  when: elasticsearch_install|bool == true or kibana_install|bool == true
+
+- name: "Installing Elasticsearch from the RPM repository"
+  ansible.builtin.yum:
+    name: elasticsearch
+    enablerepo: elasticsearch
+    state: latest
+  when: elasticsearch_install|bool == true
+  notify:
+    - Enable elasticsearch service
+    - Start elasticsearch service
+#    - Create enrollment token
+
+- name: "Installing Kibana from the RPM repository"
+  ansible.builtin.yum:
+    name: kibana
+    enablerepo: elasticsearch
+    state: latest
+  when: kibana_install|bool == true
+  notify:
+    - Enable kibana service
+    - Start kibana service

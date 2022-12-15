@@ -1,0 +1,88 @@
+---
+# tasks file for prometheus
+- name: "Check target platform"
+  ansible.builtin.fail:
+    msg: This platform doesn't yet supported
+  when: ansible_system != "Linux"
+
+- name: "Create group"
+  ansible.builtin.group:
+    name: "{{ prometheus_default_user }}"
+    state: present
+
+- name: "Create user"
+  ansible.builtin.user:
+    name: "{{ prometheus_default_group }}"
+    comment: "Prometheus server user"
+    shell: /bin/false
+
+- name: "Download {{ prometheus_version }} version"
+  ansible.builtin.get_url:
+    url: "{{ prometheus_release_url }}"
+    dest: "/tmp/{{ prometheus_release_archive }}"
+
+- name: "Untar {{ prometheus_release_archive }}"
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ prometheus_release_archive }}"
+    dest: "/tmp/"
+    remote_src: true
+
+- name: "Install prometheus binary file"
+  ansible.builtin.copy:
+    src: "/tmp/prometheus-{{ prometheus_version }}.linux-amd64/prometheus"
+    dest: "{{ prometheus_bin_dir }}/prometheus"
+    group: "{{ prometheus_default_group }}"
+    mode: preserve
+    remote_src: true
+
+- name: "Install promtool"
+  ansible.builtin.copy:
+    src: "/tmp/prometheus-{{ prometheus_version }}.linux-amd64/promtool"
+    dest: "{{ prometheus_bin_dir }}/promtool"
+    mode: preserve
+    remote_src: true
+
+- name: "Create prometheus directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "prometheus"
+    group: "prometheus"
+    state: directory
+  with_items: "{{ prometheus_directories }}"
+
+- name: "Copy prometheus options file"
+  ansible.builtin.copy:
+    src: "{{ prometheus_options_file }}"
+    dest: "{{ prometheus_env_file }}"
+
+- name: "Copy prometheus config from template"
+  ansible.builtin.template:
+    src: "{{ prometheus_config_template }}"
+    dest: "/etc/prometheus/prometheus.yml"
+    group: "{{ prometheus_default_group }}"
+    owner: "{{ prometheus_default_user }}"
+  when: prometheus_provisioned_config_file|length == 0
+
+- name: "Copy provisioned config file"
+  ansible.builtin.copy:
+    src: "{{ prometheus_provisioned_config_file }}"
+    dest: "/etc/prometheus/prometheus.yml"
+    group: "{{ prometheus_default_group }}"
+  when: prometheus_provisioned_config_file|length > 0
+
+- name: "Install prometheus service"
+  ansible.builtin.template:
+    src: "{{ prometheus_service_template }}"
+    dest: /usr/lib/systemd/system/prometheus.service
+
+- name: "Enable prometheus service"
+  ansible.builtin.systemd:
+    name: prometheus
+    enabled: yes
+  notify: Start prometheus service
+
+- name: "Cleanup sources"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items: ["/tmp/prometheus-{{ prometheus_version }}.linux-amd64", "/tmp/{{ prometheus_release_archive }}"]

@@ -1,0 +1,25 @@
+---
+# tasks file for elasticsearch
+- name: "Check target platform"
+  ansible.builtin.fail:
+    msg: This platform doesn't yet supported
+  when: ansible_system != "Linux"
+
+- name: "Check target OS"
+  ansible.builtin.fail:
+    msg: This OS doesn't yet supported
+  when:
+    - ansible_os_family != 'RedHat'
+    - ansible_os_family != 'Debian'
+
+- include_tasks: RedHat-specific.yml
+  when: ansible_os_family == 'RedHat'
+
+- include_tasks: Debian-specific.yml
+  when: ansible_os_family == 'Debian'
+
+- name: "Set Kibana server host"
+  ansible.builtin.lineinfile:
+    path: /etc/kibana/kibana.yml
+    regexp: "^#server.host"
+    line: "server.host: {{ kibana_server_host }}"

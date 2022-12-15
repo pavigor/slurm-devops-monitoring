@@ -1,0 +1,10 @@
+---
+# Repository settings
+elastic_repo_key_url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+elastic_apt_repo: "https://artifacts.elastic.co/packages/7.x/apt"
+elastic_yum_repo: "https://artifacts.elastic.co/packages/7.x/yum"
+
+elasticsearch_install: true
+kibana_install: true
+kibana_server_host: "localhost"
+

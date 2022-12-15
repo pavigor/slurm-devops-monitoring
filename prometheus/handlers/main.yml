@@ -1,0 +1,10 @@
+---
+- name: Reload prometheus config
+  ansible.builtin.systemd:
+    name: prometheus
+    state: reloaded
+
+- name: Start prometheus service
+  ansible.builtin.systemd:
+    name: prometheus
+    state: started
