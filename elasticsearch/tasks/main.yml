@@ -18,8 +18,17 @@
 - include_tasks: Debian-specific.yml
   when: ansible_os_family == 'Debian'
 
-- name: "Set Kibana server host"
-  ansible.builtin.lineinfile:
-    path: /etc/kibana/kibana.yml
-    regexp: "^#server.host"
-    line: "server.host: {{ kibana_server_host }}"
+- name: "Copy elasticsearch config"
+  ansible.builtin.template:
+    src: "{{ elasticsearch_config_template }}"
+    dest: "/etc/elasticsearch/elasticsearch.yml"
+    group: "{{ elasticsearch_default_group }}"
+  notify: Start elasticsearch service
+
+- name: "Copy kibana config"
+  ansible.builtin.template:
+    src: "{{ kibana_config_template }}"
+    dest: "/etc/kibana/kibana.yml"
+    group: "{{ kibana_default_group }}"
+  notify: Start kibana service
+

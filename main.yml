@@ -1,6 +1,6 @@
 ---
 - name: "Deploy prometheus"
-  hosts: monitoring
+  hosts: prometheus
   become: true
 
   roles:

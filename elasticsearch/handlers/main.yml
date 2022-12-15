@@ -10,16 +10,6 @@
     name: elasticsearch
     state: started
 
-#- name: Create enrollment token
-#  ansible.builtin.command:
-#    cmd: /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
-#  register: enrollment_token
-#  notify: Print enrollment token
-#
-#- name: Print enrollment token
-#  ansible.builtin.debug:
-#    var: enrollment_token.stdout
-
 - name: Enable kibana service
   ansible.builtin.systemd:
     name: kibana
@@ -29,4 +19,4 @@
 - name: Start kibana service
   ansible.builtin.systemd:
     name: kibana
-    state: started
+    state: restarted
